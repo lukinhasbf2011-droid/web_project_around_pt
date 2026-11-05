@@ -52,7 +52,7 @@ closeEditButton.addEventListener('click', function () {
   closeModal(editModal);
 });
 
-// 1. Função para preencher os campos do formulário com os dados atuais da página
+// Função para preencher os campos do formulário com os dados atuais da página
 function fillProfileForm() {
   const profileName = document.querySelector('.profile__title').textContent;
   const profileDescription = document.querySelector('.profile__description').textContent;
@@ -94,3 +94,86 @@ function handleProfileFormSubmit(evt) {
 
 // Conecta o manipulador ao formulário
 formElement.addEventListener('submit', handleProfileFormSubmit);
+
+// Cards Section
+const cardsContainer = document.querySelector('.cards__list');
+const cardTemplate = document.querySelector('#cards__template');
+
+// Criando Elmentos
+function createCardElement(name="Lugar sem nome", link="../images/placeholder.jpg") {
+  const cardElement = cardTemplate.content.querySelector(".card").cloneNode(true);
+
+  const cardTitle = cardElement.querySelector(".card__title");
+  const cardImage = cardElement.querySelector(".card__image");
+
+  cardImage.src = link;
+  cardImage.alt = name;
+  cardTitle.textContent = name;
+
+  const deleteButton = cardElement.querySelector('.card__delete-button');
+  deleteButton.addEventListener('click', function () {
+    cardElement.remove();
+  });
+
+  const likeButton = cardElement.querySelector('.card__like-button');
+  likeButton.addEventListener('click', function () {
+    likeButton.classList.toggle('card__like-button_is-active');
+  });
+
+  cardImage.addEventListener('click', function () {
+    popupImage.src = link;
+    popupImage.alt = name;
+    popupCaption.textContent = name;
+    openModal(imageModal);
+  });
+
+  return cardElement;
+}
+// Renderizando os cards
+function renderCard(name, link, container) {
+ const cardRender = createCardElement(name, link);
+ container.prepend(cardRender);
+}
+// dando os nomes e links para os cards iniciais
+initialCards.forEach((item) => {
+  renderCard(item.name, item.link, cardsContainer);
+});	
+
+const profileAddButton = document.querySelector('.profile__add-button');
+const addModal = document.querySelector('#new-card-popup');
+const closeAddButton = addModal.querySelector('.popup__close');
+const newCardForm = addModal.querySelector('.popup__form');
+
+profileAddButton.addEventListener('click', function () {
+  openModal(addModal);
+});
+
+closeAddButton.addEventListener('click', function () {
+  closeModal(addModal);
+});
+
+function handleCardFormSubmit(evt) {
+  evt.preventDefault();
+
+  const nameInput = document.querySelector('.popup__input_type_card-name');
+  const linkInput = document.querySelector('.popup__input_type_url');
+
+  const newCard = createCardElement(nameInput.value, linkInput.value);
+  cardsContainer.prepend(newCard);
+
+  newCardForm.reset();
+  closeModal(addModal);
+}
+
+newCardForm.addEventListener('submit', handleCardFormSubmit);
+
+
+const imageModal = document.querySelector('#image-popup');
+const closeImageModalButton = imageModal.querySelector('.popup__close');
+const popupImage = imageModal.querySelector('.popup__image');
+const popupCaption = imageModal.querySelector('.popup__caption');
+
+closeImageModalButton.addEventListener('click', function () {
+  closeModal(imageModal);
+});
+
