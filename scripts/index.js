@@ -25,9 +25,6 @@ let initialCards = [
     }
 ];
 
-initialCards.forEach(card => {
-    console.log(card.name);
-});
 
 // Selecionando os elementos necessários no DOM
 const profileEditButton = document.querySelector('.profile__edit-button');
@@ -44,9 +41,6 @@ function closeModal(modal) {
 }
 
 // Adicionando os event listeners para escutar os cliques
-profileEditButton.addEventListener('click', function () {
-  openModal(editModal);
-});
 
 closeEditButton.addEventListener('click', function () {
   closeModal(editModal);
@@ -57,8 +51,8 @@ function fillProfileForm() {
   const profileName = document.querySelector('.profile__title').textContent;
   const profileDescription = document.querySelector('.profile__description').textContent;
 
-  const nameInput = document.querySelector('.popup__input_type_name');
-  const descriptionInput = document.querySelector('.popup__input_type_description');
+  const nameInput = editModal.querySelector('.popup__input_type_name');
+  const descriptionInput = editModal.querySelector('.popup__input_type_description');
 
   nameInput.value = profileName;
   descriptionInput.value = profileDescription;
@@ -74,14 +68,14 @@ function handleOpenEditModal() {
 profileEditButton.addEventListener('click', handleOpenEditModal);
 
 //  Encontra o formulário no DOM
-const formElement = document.querySelector('.popup__form');
+const editProfileForm = editModal.querySelector('.popup__form');
 
 //  Cria o manipulador do evento submit
 function handleProfileFormSubmit(evt) {
   evt.preventDefault();
 
-  const nameInput = document.querySelector('.popup__input_type_name');
-  const jobInput = document.querySelector('.popup__input_type_description');
+  const nameInput = editModal.querySelector('.popup__input_type_name');
+  const jobInput = editModal.querySelector('.popup__input_type_description');
 
   const profileTitle = document.querySelector('.profile__title');
   const profileDescription = document.querySelector('.profile__description');
@@ -93,7 +87,7 @@ function handleProfileFormSubmit(evt) {
 }
 
 // Conecta o manipulador ao formulário
-formElement.addEventListener('submit', handleProfileFormSubmit);
+editProfileForm.addEventListener('submit', handleProfileFormSubmit);
 
 // Cards Section
 const cardsContainer = document.querySelector('.cards__list');
@@ -155,11 +149,10 @@ closeAddButton.addEventListener('click', function () {
 function handleCardFormSubmit(evt) {
   evt.preventDefault();
 
-  const nameInput = document.querySelector('.popup__input_type_card-name');
-  const linkInput = document.querySelector('.popup__input_type_url');
+  const nameInput = addModal.querySelector('.popup__input_type_card-name');
+  const linkInput = addModal.querySelector('.popup__input_type_url');
 
-  const newCard = createCardElement(nameInput.value, linkInput.value);
-  cardsContainer.prepend(newCard);
+  renderCard(nameInput.value, linkInput.value, cardsContainer);
 
   newCardForm.reset();
   closeModal(addModal);
@@ -177,3 +170,99 @@ closeImageModalButton.addEventListener('click', function () {
   closeModal(imageModal);
 });
 
+
+
+// Função que exibe a mensagem de erro no elemento span
+const showInputError = (formElement, inputElement, errorMessage) => {
+  const errorElement = formElement.querySelector(`#${inputElement.id}-error`);
+  inputElement.classList.add("popup__input_type_error");
+  errorElement.textContent = errorMessage;
+  errorElement.classList.add("popup__error_visible");
+};
+
+// Função que oculta a mensagem de erro
+const hideInputError = (formElement, inputElement) => {
+  const errorElement = formElement.querySelector(`#${inputElement.id}-error`);
+  inputElement.classList.remove("popup__input_type_error");
+  errorElement.classList.remove("popup__error_visible");
+  errorElement.textContent = "";
+};
+
+// Verifica se o campo individual é válido
+const checkInputValidity = (formElement, inputElement) => {
+  if (!inputElement.validity.valid) {
+    showInputError(formElement, inputElement, inputElement.validationMessage);
+  } else {
+    hideInputError(formElement, inputElement);
+  }
+};
+
+// Verifica se existe pelo menos um campo inválido na lista
+const hasInvalidInput = (inputList) => {
+  return inputList.some((inputElement) => {
+    return !inputElement.validity.valid;
+  });
+};
+
+// Alterna o estado do botão (ativo/inativo) baseado na validade dos campos
+const toggleButtonState = (inputList, buttonElement) => {
+  if (hasInvalidInput(inputList)) {
+    buttonElement.classList.add("popup__button_disabled");
+    buttonElement.setAttribute("disabled", true);
+  } else {
+    buttonElement.classList.remove("popup__button_disabled");
+    buttonElement.removeAttribute("disabled");
+  }
+};
+
+// Adiciona os ouvintes de eventos para cada input do formulário
+const setEventListeners = (formElement) => {
+  const inputList = Array.from(formElement.querySelectorAll(".popup__input"));
+  const buttonElement = formElement.querySelector(".popup__button");
+
+  // Define o estado inicial do botão ao carregar
+  toggleButtonState(inputList, buttonElement);
+
+  inputList.forEach((inputElement) => {
+    inputElement.addEventListener("input", () => {
+      checkInputValidity(formElement, inputElement);
+      toggleButtonState(inputList, buttonElement);
+    });
+  });
+};
+
+// Função principal que ativa a validação em todos os formulários da página
+const enableValidation = () => {
+  const formList = Array.from(document.querySelectorAll(".popup__form"));
+  formList.forEach((formElement) => {
+    formElement.addEventListener("submit", (evt) => {
+      evt.preventDefault();
+    });
+    setEventListeners(formElement);
+  });
+};
+
+// Inicializa a validação
+enableValidation();
+
+// Seleciona todos os pop-ups da página
+const popups = document.querySelectorAll('.popup');
+
+popups.forEach((popup) => {
+  popup.addEventListener('mousedown', (evt) => {
+    // Se o clique aconteceu exatamente no fundo escuro (.popup) e não na caixa de conteúdo
+    if (evt.target === popup) {
+      closeModal(popup); // Corrigido para usar a sua função closeModal
+    }
+  });
+});
+
+// Fecha o pop-up ao pressionar a tecla Esc
+document.addEventListener('keydown', (evt) => {
+  if (evt.key === 'Escape') {
+    const openedPopup = document.querySelector('.popup_is-opened');
+    if (openedPopup) {
+      closeModal(openedPopup);
+    }
+  }
+});
