@@ -1,4 +1,4 @@
-let initialCards = [
+const initialCards = [
     {
         name: 'Vale de Yosemite',
         link: 'https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_yosemite.jpg'
@@ -29,7 +29,14 @@ let initialCards = [
 // Selecionando os elementos necessários no DOM
 const profileEditButton = document.querySelector('.profile__edit-button');
 const editModal = document.querySelector('#edit-popup');
-const closeEditButton = editModal.querySelector('.popup__close'); // Seleciona o botão de fechar dentro do modal
+const closeEditButton = editModal.querySelector('.popup__close');
+const profileTitle = document.querySelector('.profile__title');
+const profileDescription = document.querySelector('.profile__description');
+const imageModal = document.querySelector('#image-popup');
+const closeImageModalButton = imageModal.querySelector('.popup__close');
+const popupImage = imageModal.querySelector('.popup__image');
+const popupCaption = imageModal.querySelector('.popup__caption');
+
 
 // Criando funções reutilizáveis para abrir e fechar o modal
 function openModal(modal) {
@@ -48,19 +55,17 @@ closeEditButton.addEventListener('click', function () {
 
 // Função para preencher os campos do formulário com os dados atuais da página
 function fillProfileForm() {
-  const profileName = document.querySelector('.profile__title').textContent;
-  const profileDescription = document.querySelector('.profile__description').textContent;
-
   const nameInput = editModal.querySelector('.popup__input_type_name');
   const descriptionInput = editModal.querySelector('.popup__input_type_description');
 
-  nameInput.value = profileName;
-  descriptionInput.value = profileDescription;
+  nameInput.value = profileTitle.textContent;
+  descriptionInput.value = profileDescription.textContent;
 }
 
 // Função para preencher o formulário e abrir o pop-up
 function handleOpenEditModal() {
-  fillProfileForm(); 
+  fillProfileForm();
+  resetValidation(editProfileForm);
   openModal(editModal); 
 }
 
@@ -76,9 +81,6 @@ function handleProfileFormSubmit(evt) {
 
   const nameInput = editModal.querySelector('.popup__input_type_name');
   const jobInput = editModal.querySelector('.popup__input_type_description');
-
-  const profileTitle = document.querySelector('.profile__title');
-  const profileDescription = document.querySelector('.profile__description');
 
   profileTitle.textContent = nameInput.value;
   profileDescription.textContent = jobInput.value;
@@ -139,6 +141,7 @@ const closeAddButton = addModal.querySelector('.popup__close');
 const newCardForm = addModal.querySelector('.popup__form');
 
 profileAddButton.addEventListener('click', function () {
+  resetValidation(newCardForm);
   openModal(addModal);
 });
 
@@ -159,12 +162,6 @@ function handleCardFormSubmit(evt) {
 }
 
 newCardForm.addEventListener('submit', handleCardFormSubmit);
-
-
-const imageModal = document.querySelector('#image-popup');
-const closeImageModalButton = imageModal.querySelector('.popup__close');
-const popupImage = imageModal.querySelector('.popup__image');
-const popupCaption = imageModal.querySelector('.popup__caption');
 
 closeImageModalButton.addEventListener('click', function () {
   closeModal(imageModal);
@@ -204,14 +201,25 @@ const hasInvalidInput = (inputList) => {
   });
 };
 
+const resetValidation = (form) => {
+  const inputList = Array.from(form.querySelectorAll(".popup__input"));
+  const buttonElement = form.querySelector(".popup__button");
+
+  inputList.forEach((inputElement) => {
+    hideInputError(form, inputElement);
+  });
+
+  toggleButtonState(inputList, buttonElement);
+};
+
 // Alterna o estado do botão (ativo/inativo) baseado na validade dos campos
 const toggleButtonState = (inputList, buttonElement) => {
   if (hasInvalidInput(inputList)) {
     buttonElement.classList.add("popup__button_disabled");
-    buttonElement.setAttribute("disabled", true);
+    buttonElement.disabled = true;
   } else {
     buttonElement.classList.remove("popup__button_disabled");
-    buttonElement.removeAttribute("disabled");
+    buttonElement.disabled = false;
   }
 };
 
@@ -235,9 +243,6 @@ const setEventListeners = (formElement) => {
 const enableValidation = () => {
   const formList = Array.from(document.querySelectorAll(".popup__form"));
   formList.forEach((formElement) => {
-    formElement.addEventListener("submit", (evt) => {
-      evt.preventDefault();
-    });
     setEventListeners(formElement);
   });
 };
@@ -252,7 +257,7 @@ popups.forEach((popup) => {
   popup.addEventListener('mousedown', (evt) => {
     // Se o clique aconteceu exatamente no fundo escuro (.popup) e não na caixa de conteúdo
     if (evt.target === popup) {
-      closeModal(popup); // Corrigido para usar a sua função closeModal
+      closeModal(popup);
     }
   });
 });
