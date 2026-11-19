@@ -16,8 +16,8 @@ export default class Card {
   }
 
   // Métodos privados de eventos
-  _handleLikeIcon() {
-    this._likeButton.classList.toggle("card__like-button_active");
+ _handleLikeIcon() {
+  this._likeButton.classList.toggle("card__like-button_is-active");
   }
 
   _handleDeleteCard() {
