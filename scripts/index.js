@@ -271,3 +271,23 @@ document.addEventListener('keydown', (evt) => {
     }
   }
 });
+
+import Card from "./card.js";
+import FormValidator from "./formValidator.js";
+
+// Objeto de configuração de validação (ajuste conforme o seu código)
+const validationConfig = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__error_visible"
+};
+
+// Habilitando a validação para todos os formulários da página
+const formList = Array.from(document.querySelectorAll(validationConfig.formSelector));
+formList.forEach((formElement) => {
+  const validator = new FormValidator(validationConfig, formElement);
+  validator.enableValidation();
+});
